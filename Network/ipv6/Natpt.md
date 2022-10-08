@@ -104,11 +104,13 @@ ipv6 nat v6v4 source list natt6 interface GigaEthernet0/1
 ipv6 nat prefix 2001::/96 v4-mapped nat4all #启动v4-mapped功能，使用nat4all标识匹配的地址，将从此地址中提取出ipv4并做为转换的目标地址
 ipv6 nat log translations
 !
-ipv6 access-list natt6
- permit ipv6 any 2001::/96 sequence 10
+ipv6 access-list natt6-
+  permit ipv6 2001:10:17:110::/64 any sequence 10
+ #permit ipv6 any 2001::/96 sequence 10
 !
 ipv6 access-list nat4all
- permit ipv6 any 2001::/96 sequence 10
+ permit ipv6 any any sequence 10
+ #permit ipv6 any 2001::/96 sequence 10
 
 #从上面配置中看出ipv4没有做映射，那么v6怎么知道目标呢？上面已标明v4-mapped能使v6在访问的目标地址中提取出ipv4并做为转换的目标地址。在RT1查看IPv6的Nat转换
 RT-1#show ipv6 nat translations
