@@ -82,10 +82,10 @@ nfsclient.test.com 指定域名的主机
  no_hide           #共享NFS目录的子目录 
  subtree_check   #如果共享/usr/bin之类的子目录时，强制NFS检查父目录的权限（默认） 
  no_subtree_check    #和上面相对，不检查父目录权限 
- all_squash               #共享文件的UID和GID映射匿名用户anonymous，适合公用目录。 
- no_all_squash         #保留共享文件的UID和GID（默认） 
- root_squash             #root用户的所有请求映射成如anonymous用户一样的权限（默认） 
- no_root_squas           #root用户具有根目录的完全管理访问权限 
+ all_squash               #无论NFS客户端使用什么账户访问，均映射为NFS服务器的匿名用户 
+ no_all_squash         #访问用户先与本机用户匹配，匹配失败后再映射为匿名用户或用户组 
+ root_squash             #当NFS客户端以root管理员访问时，映射为NFS服务器的匿名用户
+ no_root_squash           #当NFS客户端以root管理员访问时，映射为NFS服务器的root管理员 
  anonuid=xxx             #指定NFS服务器/etc/passwd文件中匿名用户的UID
  anongid=xxx             #指定NFS服务器/etc/passwd文件中匿名用户的GID
 ```
