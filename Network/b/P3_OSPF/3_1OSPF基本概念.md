@@ -1,6 +1,5 @@
 
 ### 本章内容概述和教学目标
-- 3.1 OSPF 的基本概念
 - 回顾一下距离矢量路由协议的工作原理: 运行距离矢量路由协议的路由器周期性地泛洪自己的路由表，每台路由器都从相邻的路由器学习到路由，并且將路由加载进自己的路由表中，而它们并不清楚网络的拓扑结构，只是简单地知道到达某个目标网段应该从哪里走、距离有多远。
 - 与距离矢量路由协议不同，运行链路状态路由协议的路由器知晓整个网络的拓扑结构，这使得路由更不易发生环路。
 - 运行链路状态路由协议的路由器之间首先会建立邻居关系，之后开始交互链路状态 (Link-State，LS）信息，而不是直接交互路由。可以简略地将链路状态信息理解为每台路由器都会产生的、描述自己直连接口状况(包括接口的开销、与邻居路由器之间的关系或网段信息等）的通告，更通俗点的讲法是，每合路由器都产生一个描述自己家门口情况的通告。这些通告会被泛洪到整个网络，从而保证网络中的每合路由器都拥有对该网络的一致认知。路由器将这些链路状态信息存储在 LSDB (Link-State Database，链路状态数据库)之中，LSDB 内的数据有助于路由器还原全网的拓扑结构（如 图3-1 所示）。接下来，每台路由器都基于 LSDB 使用相同算法进行计算，计算的结果是得到一棵以自己为根的、无环的最短路径 “树”。有了这棵“树”，事实上路由器就已经知道了到达网络各个角落的最优路径。最后，路由器将计算出来的最优路径(路由） 加载到自己的路由表。
@@ -36,7 +35,7 @@ Router(config)#router ospf 100
 Router(config-router)#route-id 1.1.1.1
 ```
 
-** 说明: Loopback 接口也即本地环回接口，是一种软件的、逻辑的接口，实际上不光是网络设备支持 Loopback 接口，很多主机（例如Windows或Linux主机）也同样支持。用广可以根据业务需求，在网络设备上创建 Loopback 接口，并为该接口配置I地址。Loopback 接口非常稳定，除非人为地进行关闭或删除，否则是永远不会失效的。正因如此，Loopback 接口通常用于设备网管、网络测试、网络协议应用等。**
+**说明: Loopback 接口也即本地环回接口，是一种软件的、逻辑的接口，实际上不光是网络设备支持 Loopback 接口，很多主机（例如Windows或Linux主机）也同样支持。用广可以根据业务需求，在网络设备上创建 Loopback 接口，并为该接口配置I地址。Loopback 接口非常稳定，除非人为地进行关闭或删除，否则是永远不会失效的。正因如此，Loopback 接口通常用于设备网管、网络测试、网络协议应用等。**
 
 - 以上配置中，```router-id 1.1.1.1``` 命令用于,将路由器所使用的 Router-ID 设置为 1.1.1.1。无论是采用手工配置还是自动选取的方式，一旦 OSPF 确定了 Router-ID，之后如果再变更的话就需要将 OSPF 进程重启才能使新的 Router-ID 生效，用于重启 OSPF 进程的命令是：
 ```shell
@@ -49,7 +48,7 @@ Router# clear ip ospf process
 
 ### 3.1.2 OSPF 的三张表
 - OSPF 使用三张表格以确保其正常运行:
-  - 1.邻居表（Peer Table 或 Neighbor Table)在 OSPF 交互链路状态通告之前，两台直连路由器需建立 OSPF 邻居关系。当一个接口激活 OSPF 后，该接口将周期性地发送 OSPF Hello 报文，同时也开始侦听 Hello 报文从而发现直连链路上的邻居。当 OSPF 在接口上发现邻居后，邻居的信息就会被写入路由器的 OSPF 邻居表，随后一个邻接关系的建立过程也就开始了。
+  - 邻居表（Peer Table 或 Neighbor Table)在 OSPF 交互链路状态通告之前，两台直连路由器需建立 OSPF 邻居关系。当一个接口激活 OSPF 后，该接口将周期性地发送 OSPF Hello 报文，同时也开始侦听 Hello 报文从而发现直连链路上的邻居。当 OSPF 在接口上发现邻居后，邻居的信息就会被写入路由器的 OSPF 邻居表，随后一个邻接关系的建立过程也就开始了。
   - 在图 3-2 所示的网络中，R1、R2 及 R3 都运行了 OSPF。以R2 为例，它将在自己的Eth0/0 及 Serial 1/0 接口上分别发现 R1 及 R3，并最终与这两者都建立 OSPF 邻接关系，来看一下R2 的邻居表：
   ```shell
   R2#show ip ospf neighbor
@@ -61,7 +60,7 @@ Router# clear ip ospf process
   - 掌握邻居表的查看是使用 OSPF 的基本技能之一，也是 OSPF 维护及故障定位的重要手段。实际上，每台 OSPF 路由器都与其邻居建立会话，每个会话都使用一个“邻居数据结构”来描述，这些数据结构是与路由器的接口相关联的，它们描述了这个邻居的状态、主/从（Master/Slave）关系、Router-ID、DR 优先级（若有）、接口 IP 地址等信息，OSPF 邻居表则汇总了这些信息，统一将路由器所有邻居的相关数据展示出来。
 ![3.2](../pics/3.2.png)
 
-  - 2.链路状态数据库 (Link-State Database, LSDB）我们已经知道，运行链路状态路由协议的路由器在网络中泛洪链路状态信息，在 OSPF 中，这些信息被称为 LSA (Link-State Advertisement，链路状态通告)，路由器将网络中的 LSA 搜集后装载到自己的 LSDB 中，因此 LSDB 可以当作是路由器对网络的完整认知。OSPF 定义了多种类型的 LSA，这些 LSA 都有各自的用途，当然最终的目的都是为了让路由器知晓网络的拓扑结构及网段信息并计算出最短路径树，从而发现到达全网各个网段的路由。理解 LSDB 中各种 LSA 是深入学习 OSPF 的必经之路。下面展示的是 图3-2 中 R2 的 LSDB（使用 show ip ospf database 命令可以查看设备的 LSDB）。实际上由于 R1、R2 及 R3 的所有接口都属于同一个 OSPF 区域，因此三台路由器的LSDB 都是一致的。
+  - 链路状态数据库 (Link-State Database, LSDB）我们已经知道，运行链路状态路由协议的路由器在网络中泛洪链路状态信息，在 OSPF 中，这些信息被称为 LSA (Link-State Advertisement，链路状态通告)，路由器将网络中的 LSA 搜集后装载到自己的 LSDB 中，因此 LSDB 可以当作是路由器对网络的完整认知。OSPF 定义了多种类型的 LSA，这些 LSA 都有各自的用途，当然最终的目的都是为了让路由器知晓网络的拓扑结构及网段信息并计算出最短路径树，从而发现到达全网各个网段的路由。理解 LSDB 中各种 LSA 是深入学习 OSPF 的必经之路。下面展示的是 图3-2 中 R2 的 LSDB（使用 show ip ospf database 命令可以查看设备的 LSDB）。实际上由于 R1、R2 及 R3 的所有接口都属于同一个 OSPF 区域，因此三台路由器的LSDB 都是一致的。
   ```shell
   R2#show ip ospf database
   
@@ -84,7 +83,7 @@ Router# clear ip ospf process
 
 
 
-  - 3.OSPF 路由表 (Routing Table) 使用 show ip route ospf 命令可以查看设备的 OSPF 路由表，也就是设备通过 OSPF 所发现的路由，以 R2 为例: 
+  - OSPF 路由表 (Routing Table) 使用 show ip route ospf 命令可以查看设备的 OSPF 路由表，也就是设备通过 OSPF 所发现的路由，以 R2 为例: 
   ```shell
   R2#show ip route ospf
   Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
@@ -166,7 +165,7 @@ Router# clear ip ospf process
   - DD 报文用于描述LSDB，该报文中携带的是 LSDB 中 LSA 的头部数据（也就是并非完整的 LSA 内容，仅仅是头部数据)。在 OSPF 路由器邻接关系的建立过程中，互为邻居的路由器之问会交互 DD 报文。在两台路由器开始使用 DD 报文描达自己的 LSDB 之前，双方需要协商主/从 (Master/Slave)。 Master/slave 的协商也是通过交互 DD 报文来完成的 (Router-ID 更大的路由器成为 Master 路由器），但是这种 DD 报文中并不包含任何LSA 的头部信息，可以理解为空的DD报文。
   - Master/Slave 确定后，双方就开始使用 DD 报文描述各自的 LSDB，在这种 DD 报文中包含着 LSDB 里的 LSA 的头部。路由器可以使用多个 DD 报文来描述 LSDB，为了确保 DD 报文传输的有序和可靠，“DD序列号 (DD Sequence Number)” 字段就是关键。在OSPF 路由器双方交互 DD 报文的过程中，Master路由器发送DD 报文给对端，对端的 Slave 路由器在发送自己 DD 报文时需在该报文的“DD 序列号” 字段中使用前者的序列号，也就是Master 路由器主导整个LSDB 描述过程。假设 Master 路由器发送一个 DD 序列号为 1111 的 DD 报文，则Slave 路由器在收到这个 DD 报文后开始发送自己的 DD 报文，而且DD 序列号使用 1111，而它在准备再次发送 DD 报文之前，必须先收到 Master 路由器发送的下一个 DD 报文( DD 序列号为 1112 ）。这个过程会一直持续，直到 LSDB 描述完。图 3-6 展示了 DD 报文的格式。
   ![3.6](../pics/3.6.png) 
-  - 接口最大传输单元 (Interface Maximum Transmission Unit): 接口的 MTU。以华为 AR2200 路由器为例，缺省时接口发送的 DD 报文中，无论该接口实际的 MTU 值是多少，该字段的值都为 0
+  - 接口最大传输单元 (Interface Maximum Transmission Unit): 接口的 MTU。路由器为例，缺省时接口发送的 DD 报文中，无论该接口实际的 MTU 值是多少，该字段的值都为 0
   - 可选项(Options): 路由器支持的 OSPF 可选项
   - I位 (Initial Bit): 也即初始化位，当该 DD 报文用于协商 Master/Slave 路由器时，该比特位被置 1，Master/Slave 选举完成后，该比特位被置 0
   - M位（More Bit): 该比特位如果设置为 1，则表示后续还有更多的 DD 报文；如果被设置为 0，则表示这是最后一个DD报文
@@ -204,7 +203,7 @@ Router# clear ip ospf process
 - OSPF 邻居状态
   - Down（失效): OSPF 邻居状态切换的初始状态。在该状态下，OSPF 接口尚末收到邻居发送的 Hello 报文
   - Init（初始): 当 OSPF 路由器收到直连链路上某个邻居发送过来的有效 Hello 报文，但并未在 Hello 报文的“邻居” 字段中看到自己的 Router-ID 时，它会将该邻居置为 Init 状态
-  - 这个状态表明，在该直连链路上有一个活跃的 OSPF 路由器，但是目前两者尚末确认双向通讯。接下来，收到 Hello 报文的路由器会将对方的 Router-ID 添加到自己发送的 Hello 报文中，以便告知对方：“我已经发现你了”
+    - 这个状态表明，在该直连链路上有一个活跃的 OSPF 路由器，但是目前两者尚末确认双向通讯。接下来，收到 Hello 报文的路由器会将对方的 Router-ID 添加到自己发送的 Hello 报文中，以便告知对方：“我已经发现你了”
   - Attempt（尝试）: 该状态只在 NBMA 类型的接口中出现。在NBMA 网络中，OSPF 邻居通常是采用手工的方式指定的，此时 OSFF 路由器往往通过单播的 Hello 报文与直连设备建立邻居关系。当路由器的 NBMA 接口激活后，邻居的状态将从 Down 过渡到 Attempt， 在该状态下，路由器周期性地向邻居发送 Hello 报文，但是当前并未从邻居收到有效的 Hello 报文。当路由器收到邻居发送的 Hello 报文后(但是没有在该报文的“邻居” 字段中看到自己的 Router-ID），则将邻居的状态切换到Init
   - 2-Way(双向通信): 当OSPF 路由器收到直连链路上某个邻居发送过来的 Hello 报文并且在该报文的“邻居”字段中发现自己的 Router-ID 时，它会将该邻居置为 2-Way状态，这表明它与邻居确认了双向通信。2-Way 状态可以视为 OSPF 的稳定状态之一，也是建立邻接关系的基础
   - ExStart（交换初始）: 在该状态下，路由器发送空的 DD 报文以便协商 Master/Slave, Router-ID 最大的路由器会成为 Master 路由器，DD 序列号就是由 Master 路由器决定的。用于 Master/Slave 协商的报文是空的、不携带任何 LSA 头部的 DD 报文，在这些报文中，工比特位被设置为 1
