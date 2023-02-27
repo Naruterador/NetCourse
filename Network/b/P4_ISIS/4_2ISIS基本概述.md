@@ -26,4 +26,24 @@ IS-IS 来说，其骨干网络并不像 OSPF 那样是一个唯一的、具体�
   - Level-2 路由器（如图4-5中的R4、R5、R6 及R7）可以简单地视为 IS-IS 骨干网络路由器，实际上 IS-IS 的骨干网络是由一系列连续的 Level-2 路由器(及 Level-1-2 路由器）组成的。
 Level-2 路由器只能与 Level-1-2 或 Level-2 路由器建立 IS-IS 邻居关系，我们将这种邻居关系称为 Level-2 邻居关系。Level-2 路由器只维护 Level-2 的 LSDB。 在一个典型的 IS-IS 网络中，Level-2 路由器通常拥有整个 IS-IS 域(包括该域内所有的 Level-1 区域及Level-2 区域）的所有路由信息。
 - Level-1-2 路由器
-  - 所谓的 Level-1-2 路由器是同时为 Level-1 及Level-2 级别的路由器（如 图4-5 中的 R2 及R3），它能够与同属一个区域的 Level-1、Level-1-2 路由器建立 Level-1 邻居关系，也可与Level-2 路由器或 Level-1-2路由器建立 Level-2 的邻居关系。Level-1-2路由器与 OSPF 中的 ABR 非常相似，它也是IS-IS 骨干网络的一个组成部分。Level-1-2路由器可以同时维护 Level-1 的LSDB 及 Level-2 的LSDB，这两个 LSDB 分别用于 Level-1 路由及 Level-2 路由计算。在一个典型的 IS-IS 网络中，Level-1-2 路由器通常连接着一个Level-1 区域，也连接着骨千网络，它将作为该 Level-1 区域与其他区域实现通信的桥梁，它将在其向该Level-1 区域下发的 Level-1 LSP 中设置 ATT 比特位，来告知区域内的 Level-1 路由器可以通过自己到达区域外部，而区域内的 Level-1 路由器则根据该 ATT 比特置位的 LSP 产生一条指向该 Level-1-2 路由器的默认路由。
+  - 所谓的 Level-1-2 路由器是同时为 Level-1 及Level-2 级别的路由器（如 图4-5 中的 R2 及R3），它能够与同属一个区域的 Level-1 、Level-1-2 路由器建立 Level-1 邻居关系，也可与Level-2 路由器或 Level-1-2路由器建立 Level-2 的邻居关系。Level-1-2 路由器与 OSPF 中的 ABR 非常相似，它也是IS-IS 骨干网络的一个组成部分。Level-1-2路由器可以同时维护 Level-1 的LSDB 及 Level-2 的LSDB，这两个 LSDB 分别用于 Level-1 路由及 Level-2 路由计算。在一个典型的 IS-IS 网络中，Level-1-2 路由器通常连接着一个Level-1 区域，也连接着骨千网络，它将作为该 Level-1 区域与其他区域实现通信的桥梁，它将在其向该Level-1 区域下发的 Level-1 LSP 中设置 ATT 比特位，来告知区域内的 Level-1 路由器可以通过自己到达区域外部，而区域内的 Level-1 路由器则根据该 ATT 比特置位的 LSP 产生一条指向该 Level-1-2 路由器的默认路由。
+
+<br>
+<br>
+
+
+### 4.2.3 度量值
+- IS-IS 使用 Cost(开销)作为路由度量值，所谓开销，亦可理解为成本或者代价，Cost 值越小，则路径(路由）越优。IS-IS 路由的 Cost 与设备的接口有关，与 OSPF 类似，每一个激活了 IS-IS 的接口都会维护接口 Cost。 然而与 OSPF 不同的是，IS-IS 接口的 Cost 在缺省情况下并不与接口的带宽相关，无论该接口的带宽如何，缺省时其 Cost 值均为 10，当然，您可以根据实际需要修改接口的 Cost 值。这种接口 Cost 的设计显然在某些场景下会存在一些问题，例如可能会导致设备选择 Cost 更优的低带宽路径，而不是选择 Cost 更劣的高带宽路径。
+- 一条 IS-IS 路由的 Cost 等于本路由器到目标网段沿途的所有出接口的 Cost 总和。在 图4-6 所示的网络中，如果全网运行了 IS-IS，则R1 将通过 IS-IS 获知到达 3.3.3.0/24 的路由，而在R1 的路由表中，3.3.3.0/24 路由的 Cost 值为 30，也就是R3的GE0/0/0 接口 Cost 加上 R1 及 R2 的 GE0/0/0 接口 Cost。
+![4.6](../pics/4.6.png)
+**说明: 其实 IS-IS 定义了四种类型的度量值：缺省(Default）度量值、时延（Delay）度量值、开销(Expense）度量值以及差错（Error）度量值，其中时延、开销及差错度量值在现今的 IS-IS 实现中几乎都不再支持，本书讨论的度量值指的是缺省度量值，该种类型的度量值是每一台 IS-IS 设备都必须支持的。**
+- 缺省时，Cisco 路由器使用的 IS-IS Cost 类型为 Narrow（窄），当使用该类 Cost 时，IS-IS 接口 Cost的长度为6bit， 这意味着一个接口所支持的 Cost 值范围是 1~63。另外，IS-IS 路由 Cost 的长度为 10bit， 这意味着接收到的路由最大的 Cost 值为 1023。显然，在面对大规模的网络时，这种 Cost 的限制会成为 IS-IS 的瓶颈。正因如此，IS-IS 引入了 Wide（宽）类型的 Cost， 当 IS-IS 使用 Wide 类型的 Cost 时，接口 Cost 变成了 24bit， 这使得设备的接口支持更大的 Cost 值范围，与此同时一条路由的 Cost 值范围也有了相当大的扩展。IS-IS 在 Cost 值上的扩展，使得它突破了前面所提到的瓶颈，从而能够支持更大规模的网络，而且在组网时，基于 Cost 的路由控制也变得更加灵活。
+使用如下命令，可以将 IS-IS 的 Cost 类型修改为 Wide:
+```shell
+R1(config)#router isis 10
+R1(config-router)#metric-style wide
+```
+- 缺省时，Cisco 路由器使用的 IS-IS Cost 类型为 Narrow，这意味着路由器只能接收和发送 Cost 类型为 Narrow 的路由，使用 metric-style wide 命令将设备的 Cost 类型修改为
+Wide 后，该设备只能接收和发送 Cost 类型为 Wide 的路由。在现实网络中，需确保 IS-IS 域内所有的路由器配置一致的 IS-IS Cost 类型。在华为路由器上，除了能将 IS-IS Cost
+类型指定为 Narrow 或 Wide， 还能将其指定为特定的兼容模式，关于这些莱容模式的介绍己经超出了本书的范围。
+正如上文所说，在 Cisco 的路由器上部署 IS-IS 时，缺省状态下 IS-IS Cost 类型为 Narrow， 并且接口的缺省 Cost 值为 10，无论接口的带宽是多少，其 Cost 值缺省均为 10，这在某些场景下可能会导致 IS-IS 的路由优选不尽如人意。其中一个简单的改进方法是，根据组网的实际需求去手工修改设备的接口 Cost。另一个可选的方法则是使用 IS-IS 自动计算接口 Cost 的功能。这个功能被激活后，设备将自动根据接口的带宽值进行该接口 Cost 值的计算，这与 OSPF 的接口度量值计算就非常相似了，设备将使用一个参考带宽值（缺省100Mbps，可以在接口模式下使用 isis metric 命令修改）除以接口的带宽值，再将所得结果乘以 10，得到接口的 Cost 值。例如千兆以太网接口缺省的带宽值为 1000Mbps， 100/1000×10 得到的结果是 1，因此千兆以太网接口在激活 IS-IS 自动计算 Cost值的功能后，Cost 值为 1。值得一提的是，只有当设备的 IS-IS Cost 类型指定为 Wide 或 Wide-compatible(宽度量兼容模式）时，上述计算才会发生，如果设备的 IS-IS Cost 类型为 Narrow、Narrow-compatible 或 Compatible，则激活了 自动接口 Cost 计算功能后，设备将采用如 表 4-1 所示的对应关系为接口设置缺省 Cost 值。在设备的IS-IS 视图下，执行auto-cost enable 命令，可激活自动计算接口 Cost 的功能。缺省时该功能未被激活。
