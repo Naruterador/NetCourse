@@ -47,3 +47,90 @@ R1(config-router)#metric-style wide
 - 正如上文所说，在 Cisco 的路由器上部署 IS-IS 时，缺省状态下 IS-IS Cost 类型为 Narrow， 并且接口的缺省 Cost 值为 10，无论接口的带宽是多少，其 Cost 值缺省均为 10，这在某些场景下可能会导致 IS-IS 的路由优选不尽如人意。其中一个简单的改进方法是，根据组网的实际需求去手工修改设备的接口 Cost。另一个可选的方法则是使用 IS-IS 自动计算接口 Cost 的功能。这个功能被激活后，设备将自动根据接口的带宽值进行该接口 Cost 值的计算，这与 OSPF 的接口度量值计算就非常相似了，设备将使用一个参考带宽值除以接口的带宽值，再将所得结果乘以 10，得到接口的 Cost 值。例如千兆以太网接口缺省的带宽值为 1000Mbps， 100/1000×10 得到的结果是 1，因此千兆以太网接口在激活 IS-IS 自动计算 Cost值的功能后，Cost 值为 1。值得一提的是，只有当设备的 IS-IS Cost 类型指定为 Wide 时，上述计算才会发生，如果设备的 IS-IS Cost 类型为 Narrow，则激活了 自动接口 Cost 计算功能后，设备将采用如 表 4-1 所示的对应关系为接口设置缺省 Cost 值。
 ![4.1t](../pics/4.1t.png)
 - 如需手工指定设备的接口 Cost 值，可在接口视图下使用 isis metric 命令，例如使用isis metric 20，可将接口的 Cost 值从缺省值修改为 20。需注意的是该命令中有两个可选关键字，它们分别是 level-1 及level-2，如果在 isis metric 命令中使用了 level-1 关键字，那么该命令配置的是接口的 Level-1 Cost 值，例如 isis metric 20 level-1。同理，如果在 isis metric 命令中使用了 Level-2 关键字，那么该命令配置的是接口的 Level-2 Cost 值。而如果没有使用 level-1 或 level-2关键字，那么该命令配置的是接口的 Level-1 及 Level-2 Cost值。
+
+<br>
+<br>
+
+### 4.2.4 1S-IS 的三张表
+- 与OSPF 非常类似，IS-IS 也维护着三张非常重要的数据表，它们分别是。
+  - 邻居表
+    - 两台相邻的IS-IS 设备首先必须建立邻居关系，然后才能够开始交互 LSP。IS-IS 设备将直连链路上发现的邻居加载到自己的邻居表中。在华为的路由器上，使用 ```show isis neighbors``` 命令可查看设备的 IS-IS 邻居表，在邻居表中，大家能看到邻居的系统ID、状态、保活时间及类型等信息。
+    - 以图4-7为例，如果在R2 上执行该条命令，可以看到如下输出：
+    ```shell
+    R2#show isis neighbors
+
+    System Id       Type Interface     IP Address      State Holdtime Circuit Id
+    R1              L1   GE0/0         10.1.12.1       UP    29       R2.01         
+    R3              L2   GE0/1         10.1.23.2       UP    9        R3.01 
+    ```
+    - 从上述输出可以看到，R2 己经发现了两个邻居，它在接口 GE0/0/0 上发现了邻居R1（系统ID 为0000.0000.0001），该邻居状态为 UP，保持时间还剩余29秒，而且该邻居的类型为 Level-1 (Type 列）；另外，R2 还在其接口 GE0/0/1 上发现了邻居 R3，并且该邻居的类型为 Level-2。
+    ![4.7](../pics/4.7.png)
+  - LSDB (Link-State Database，链路状态数据库）
+    - 两台直连的 IS-IS 设备只有建立了邻居关系，才能够开始交互 LSP。IS-IS 设备将自己产生的、以及网络中所泛洪的LSP 收集后存储在自己的LSDB 中。与OSPF 类似，IS-IS 也使用ISDB 存储链路状态信息，这些信息将被用于网络拓扑绘制及路由计算。在 Cisco 路由器上，使用 ```show isis database``` 命令可查看设备的 IS-IS LSDB。 以 R1 为例:
+    ```shell
+    R1#show isis database
+
+    IS-IS Level-1 Link State Database:
+    LSPID                 LSP Seq Num  LSP Checksum  LSP Holdtime/Rcvd      ATT/P/OL
+    R1.00-00            * 0x00000007   0x06BD                1010/*         0/0/0
+    R2.00-00              0x0000000A   0xADC8                1070/1199      1/0/0
+    R2.01-00              0x00000006   0x74D7                 655/1199      0/0/0
+    ```
+    - 因为 R1 是一台 Level-1 路由器，所以它只维护 Level-1 LSDB，从以上输出可以看出，在R1 的 Level-1 LSDB 中存在三个LSP。每个LSP 都采用 LSP ID (Link-State Packet ID，链路状态报文标识）进行标识。
+    - LSDB 中 Seq Num 一列显示的是 LSP 的序列号，在 IS-IS 中，LSP 序列号的概念与 OSPF 中 LSA 序列号的概念非常类似，都可以用来表示一个LSP 的新旧。
+    - 在 R1 的 LSDB 中，并没有 R3 所产生的 LSP，这是因为 R2 作为该 Level-1 区域的 Level-1-2 路由器，发挥着类似区域边界路由器的作用，它不会将其他区域的 LSP 泛洪到本地 Level-1 区域中。
+    - 由于 R2 是一台 Level-1-2 路由器，因此它会同时维护 Level-1 LSDB 及 Level-2 LSDB:
+    ```shell
+    LSPID                 LSP Seq Num  LSP Checksum  LSP Holdtime/Rcvd      ATT/P/OL
+    R1.00-00              0x00000007   0x06BD                1085/1199      0/0/0
+    R2.00-00            * 0x0000000A   0xADC8                1147/*         1/0/0
+    R2.01-00            * 0x00000006   0x74D7                 732/*         0/0/0
+    IS-IS Level-2 Link State Database:
+    LSPID                 LSP Seq Num  LSP Checksum  LSP Holdtime/Rcvd      ATT/P/OL
+    R2.00-00            * 0x0000000A   0xE0F7                 970/*         0/0/0
+    R3.00-00              0x00000008   0xF7B9                 525/1199      0/0/0
+    R3.01-00              0x00000006   0x23AE                 861/1199      0/0/0
+    ```
+  - IS-IS 路由表
+    - 每台 IS-IS 设备都会基于自己的LSDB 运行相应的算法，最终计算出最优路由。IS-IS 计算出的路由存放于 IS-IS 路由表中，在 Cisco 路由器上使用 ```show ip route isis ``` 命令可以查看设备的 IS-IS 路由表。IS-IS 路由表中的路由未必最终一定被加载到设备的全局路由表中，这还取决于路由优先级等因素。
+    - 以 图4-7 为例，在 R1 上执行 ```show ip route isis``` 命令可看到如下输出:
+    ```shell
+    R1#show ip route isis
+    Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+           D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+           N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+           E1 - OSPF external type 1, E2 - OSPF external type 2
+           i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+           ia - IS-IS inter area, * - candidate default, U - per-user static route
+           o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+           a - application route
+           + - replicated route, % - next hop override, p - overrides from PfR
+    
+    Gateway of last resort is 10.1.12.2 to network 0.0.0.0
+    
+    i*L1  0.0.0.0/0 [115/10] via 10.1.12.2, 00:02:04, Ethernet0/0
+    ```
+    - 由于 R1 是 Level-1 的路由器，其处在 Area 49.0012 区域内部。因此其会接到 R2 路由器发送的 L1 类型的默认路由。这样做的优点是：能够有效的减少路由表的大小，增强了IS-IS的稳定性。其做法类似于OSPF的完全末节区域（Totally Stub)
+    - R2 的IS-IS 路由表如下:
+    ```shell
+    R2#show ip route isis
+    Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+           D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+           N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+           E1 - OSPF external type 1, E2 - OSPF external type 2
+           i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+           ia - IS-IS inter area, * - candidate default, U - per-user static route
+           o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+           a - application route
+           + - replicated route, % - next hop override, p - overrides from PfR
+    
+    Gateway of last resort is not set
+    
+          1.0.0.0/24 is subnetted, 1 subnets
+    i L1     1.1.1.0 [115/20] via 10.1.12.1, 01:35:37, Ethernet0/0
+          3.0.0.0/24 is subnetted, 1 subnets
+    i L2     3.3.3.0 [115/20] via 10.1.23.2, 01:21:00, Ethernet0/1
+    ```
+    - R2 通过 IS-IS 学习到了 Level-1 路由 1.1.1.0/24，以及 Level-2 路由 3.3.3.0/24。R2 是一台 Level-1-2 路由器，因此它分别使用 Level-1 及 Level-2 路由表存储不同类型的 IS-IS 路由。
+    - 从以上的描述可以看出，IS-IS 将路由分为 Level-1 路由及 Level-2路由。其中 Level-1 路由是设备根据 Level-1 LSDB 计算出的路由，而 Level-2 路由则是根据 Level-2 LSDB 计算出的路由。
+
