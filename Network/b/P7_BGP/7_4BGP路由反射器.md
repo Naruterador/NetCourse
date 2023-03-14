@@ -47,3 +47,6 @@ BGP Router-ID。当一条BGP 路由被路由反射器执行反射时，如果该
 10.1.0.0/16 通告给 R1，R1 则将这条来自容户的路由反射给非客户 R3，同时为被反射的路由创建 Originator_ID 属性，其值为R4 的Router-ID 4.4.4.4，另外也创建Cluster_List 属性，其值为 1.1.1.1。当 R3 收到这条路由时，它会把路由反射给 R2，同时在路由的 Cluster List 属性值的前面插入自己的 Cluster-ID 3.3.3.3。 当 R2 收到这条路由时，它将路由反射给 R1，同时在路由的 Cluster_ List 属性值的前面插入自己的 Cluster-ID 2.2.2.2。因此最终R1 将从 R2 收到关于 10.1.0.0/16 路由的通告，而且该路由携带的 Cluster_List 属性值为“2.2.2.2，3.3.3.3， 1.1.1.1”，R1 在其中看到了自己的 Cluster-ID，它将忽略这条路由，如此就可以规避路由环路。
 ![7.50](../pics/7.50.png) 
 - 值得强调的是，当路由反射器将一条从自己的 EBGP 对等体学习到的 BGP 路由通告给客户路由器时，它是不会为路由创建 Originator_ID 或 Cluster_List 属性的，因为这本质上并不是一个路由反射的行为，而是一个正常的路由通告行为。另外，当一条携带着 Originator_ID 及 Cluster_List 属性的BGP 路由被通告给路由器的 EBGP 对等体时，这条路由的 Originator_ID 及 Cluster List 属性会被该路由器移除。当路由反射器执行路由反射时，除了可能会为路由附加 Originator_ID 及 Cluster_List属性，或修改Cluster_ List 属性之外，对于其他路径属性缺省不做修改，例如 Local Preference、AS_Path、 MED、 Next Hop等。
+
+
+### 7.4.3 路由反射器基础配置
