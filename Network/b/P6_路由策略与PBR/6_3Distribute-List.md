@@ -24,4 +24,7 @@ distribute-list {acl-number | acl-name} [in | out] [interface-type interface-num
 - 其中，route-map 用于指定路由映射，match ip address 用于匹配 ACL，set 命令用于设置分发路由的条件，distribute-list 命令用于应用 ACL 和路由映射，实现分发或过滤路由信息。在 distribute-list 命令中，可以指定方向（in 或 out）、接口类型和接口号、区域类型、前缀列表名、VRF 名称等参数，以进一步限制分发或过滤的路由信息。
 
 
-### 案例1: 利用distribute-list过滤路由更新
+### 6.3.2 利用distribute-list过滤路由更新
+- 配置要求
+  - 在R1、R2上运行OSPF协议，R2、R3上运行RIP路由协议，在R2上配置路由重分发使其全网通现在要求做路由过滤R1不能学到R3的192.168.2.0和192.168.3.0网端，R3不能学到172.16.0.0和172.16.1.0网段。要求使用distribute-list列表。
+  ![6.32](../pics/6.32.jpg)

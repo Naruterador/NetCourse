@@ -84,3 +84,7 @@ Switch(config-if)# switchport mode private-vlan promiscuous
 Switch(config-if)# switchport private-vlan mapping 100 add 101-102
 ```
 
+### 8.4.2 私有Vlan配置实例1
+- 配置要求
+  -   将SW1上的VLAN100配置为主VLAN，VLAN1001配置为公共VLAN将PC1和PC2加入VLAN1001，VLAN1002配置为隔离VLAN，将PC3和CP4加入VLAN1002。SW1和SW2的互联口放入VLAN100，作为四台PC的网关。
+![8.4](../pics/8.4.jpeg)
