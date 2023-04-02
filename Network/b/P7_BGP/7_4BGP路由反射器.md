@@ -49,4 +49,6 @@ BGP Router-ID。当一条BGP 路由被路由反射器执行反射时，如果该
 - 值得强调的是，当路由反射器将一条从自己的 EBGP 对等体学习到的 BGP 路由通告给客户路由器时，它是不会为路由创建 Originator_ID 或 Cluster_List 属性的，因为这本质上并不是一个路由反射的行为，而是一个正常的路由通告行为。另外，当一条携带着 Originator_ID 及 Cluster_List 属性的BGP 路由被通告给路由器的 EBGP 对等体时，这条路由的 Originator_ID 及 Cluster List 属性会被该路由器移除。当路由反射器执行路由反射时，除了可能会为路由附加 Originator_ID 及 Cluster_List属性，或修改Cluster_ List 属性之外，对于其他路径属性缺省不做修改，例如 Local Preference、AS_Path、 MED、 Next Hop等。
 
 
-### 7.4.3 路由反射器基础配置
+### 7.4.3 案例：路由反射器的基础配置
+- 在 图7-51 中，AS 2345 内己经运行了 OSPF，该 AS 内的路由器都配置了 Loopback0 接口并为其分配 x.x.x.x/32 的 IP 地址（其中× 为设备编号），它们都将自己 Loopback0 接口的路由发布到了 OSPF 中。现在，我们把 R3 配置为路由反射器，并将 R2、R4 及 R5 配置为其客户。AS 2345 内的 IBGP 对等体关系如图所示，这些 IBGP 对等体关系基于设备的 Loopback0 接口建立。
+![7.433](../pics/7.433.png) 
