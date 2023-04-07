@@ -359,10 +359,8 @@ chmod 775 file2.txt
   ![3.2.14](./pics/3.2.14.png)
   图3.2.14
 
-####### 2.使用fdisk工具将硬盘分区 {#使用fdisk工具将硬盘分区 .unnumbered}
-
-打开虚拟机，在终端中输入命令"fdisk
--l"，查看当前系统中的硬盘。如图3.2.15所示。
+- 使用fdisk工具将硬盘分区 {#使用fdisk工具将硬盘分区 .unnumbered}
+  - 打开虚拟机，在终端中输入命令"fdisk -l"，查看当前系统中的硬盘。如图3.2.15所示。
 
 ![Screenshot 2022-07-20 at
 15.56.06](media/image13.png){width="4.754166666666666in"
