@@ -46,7 +46,9 @@ http {
 ```
 
 ### 举例:
+
 - 此配置将限制每个IP的连接速率为每秒5个请求，同时在短时间内允许10个突发请求。如果超过了这些限制，nginx将拒绝连接或请求。
+
 ```C
 http {
     limit_conn_zone $binary_remote_addr zone=conn_limit_per_ip:10m;
@@ -57,9 +59,8 @@ http {
 }
 ```
 
-
-
 ---
+
 ### 白名单设置
 
 - http_limit_conn和http_limit_req模块限制了单ip单位时间内的并发和请求数，但是如果nginx前面有lvs或者haproxy之类的负载均衡或者反向代 理，nginx获取的都是来自负载均衡的连接或请求，这时不应该限制负载均衡的连接和请求，就需要geo和map模块设置白名单：
@@ -95,12 +96,46 @@ http {
     }
 }
 
+- 反向代理缓存配置
+```C
+http {
+    proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=my_cache:10m inactive=60m;
+    
+    server {
+        listen 80;
+        server_name example.com;
+        location / {
+            proxy_pass http://backend;
+            proxy_cache my_cache;
+            proxy_cache_valid 200 60m;
+            proxy_cache_valid 404 1m;
+            proxy_cache_key "$scheme$request_method$host$request_uri";
+        }
+    }
+    
+    upstream backend {
+        server backend.example.com;
+    }
+}
+#这个配置文件定义了一个名为my_cache的缓存区，缓存路径为/var/cache/nginx，缓存数据的存储级别为1:2，最长缓存时间为60分钟。这个缓存区被用于代理到backend服务器的请求。
+#其中，proxy_cache_valid指令定义了对于不同的HTTP响应码，缓存可以保留多长时间。在这个示例中，对于HTTP响应码为200的响应，缓存可以保留60分钟，对于HTTP响应码为404的响应，缓存只能保留1分钟。
+#proxy_cache_key指令定义了用于生成缓存键的字符串。这个字符串是由$scheme、$request_method、$host和$request_uri这些变量组成的。这个缓存键将作为缓存数据的唯一标识符。
+
+#pragma endregion请注意，在上面的配置文件中，我们仅仅缓存了HTTP响应码为200和404的响应。如果您希望缓存所有的响应，可以使用以下的proxy_cache_valid指令：
+proxy_cache_valid any 60m;
+#这个指令将允许缓存任何响应，且最长缓存时间为60分钟。
+
+```
+
 //这将缓存状态码为 200 的响应 60 分钟，并缓存状态码为 404 的响应 1 分钟。
 ```
+
 ---
 
 ### 防止HTTP慢速攻击
+
 - 此配置将限制客户端在10秒内必须发送请求或数据，同时将缓冲区大小限制为1k。如果连接不稳定或缓慢，nginx将关闭连接并拒绝请求。
+
 ```C
 http {
     client_body_timeout 10s;
@@ -112,8 +147,6 @@ http {
     client_max_body_size 1k;
 }
 ```
-
-
 
 ## Nginx防止SQL注入
 
@@ -131,8 +164,11 @@ Server_tokens off;
 #  一般的网站和应用程序，你应该只允许GET，POST，和HEAD并禁用其他
 #  http 444 代表无响应 
  
-if ($request_method !~ ^(GET|HEAD|POST)$) {
-    return 444;
+location / {
+    # 允许 GET、POST、HEAD 请求
+    limit_except GET POST HEAD {
+        deny all;
+    }
 }
 ```
 
