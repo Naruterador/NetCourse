@@ -95,12 +95,15 @@ http {
            }
     }
 }
+//这将缓存状态码为 200 的响应 60 分钟，并缓存状态码为 404 的响应 1 分钟
+```
 
 - 反向代理缓存配置
+
 ```C
 http {
     proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=my_cache:10m inactive=60m;
-    
+  
     server {
         listen 80;
         server_name example.com;
@@ -112,7 +115,7 @@ http {
             proxy_cache_key "$scheme$request_method$host$request_uri";
         }
     }
-    
+  
     upstream backend {
         server backend.example.com;
     }
@@ -126,12 +129,7 @@ proxy_cache_valid any 60m;
 #这个指令将允许缓存任何响应，且最长缓存时间为60分钟。
 
 ```
-
-//这将缓存状态码为 200 的响应 60 分钟，并缓存状态码为 404 的响应 1 分钟。
-```
-
 ---
-
 ### 防止HTTP慢速攻击
 
 - 此配置将限制客户端在10秒内必须发送请求或数据，同时将缓冲区大小限制为1k。如果连接不稳定或缓慢，nginx将关闭连接并拒绝请求。
