@@ -45,6 +45,21 @@ http {
 
 ```
 
+### 举例:
+- 此配置将限制每个IP的连接速率为每秒5个请求，同时在短时间内允许10个突发请求。如果超过了这些限制，nginx将拒绝连接或请求。
+```C
+http {
+    limit_conn_zone $binary_remote_addr zone=conn_limit_per_ip:10m;
+    limit_req_zone $binary_remote_addr zone=req_limit_per_ip:10m rate=5r/s;
+
+    limit_conn conn_limit_per_ip 10;
+    limit_req zone=req_limit_per_ip burst=10 nodelay;
+}
+```
+
+
+
+---
 ### 白名单设置
 
 - http_limit_conn和http_limit_req模块限制了单ip单位时间内的并发和请求数，但是如果nginx前面有lvs或者haproxy之类的负载均衡或者反向代 理，nginx获取的都是来自负载均衡的连接或请求，这时不应该限制负载均衡的连接和请求，就需要geo和map模块设置白名单：
@@ -82,6 +97,23 @@ http {
 
 //这将缓存状态码为 200 的响应 60 分钟，并缓存状态码为 404 的响应 1 分钟。
 ```
+---
+
+### 防止HTTP慢速攻击
+- 此配置将限制客户端在10秒内必须发送请求或数据，同时将缓冲区大小限制为1k。如果连接不稳定或缓慢，nginx将关闭连接并拒绝请求。
+```C
+http {
+    client_body_timeout 10s;
+    client_header_timeout 10s;
+    send_timeout 10s;
+
+    client_body_buffer_size 1k;
+    client_header_buffer_size 1k;
+    client_max_body_size 1k;
+}
+```
+
+
 
 ## Nginx防止SQL注入
 
