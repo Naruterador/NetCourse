@@ -77,7 +77,7 @@ limit_conn_zone $limit zone=addr:10m;
 
 - 参数说明：
 - geo模块定义了一个默认值是1的变量whiteiplist，当在ip在白名单中，变量whiteiplist的值为0，反之为1
-- 如果在白名单中–> whiteiplist=0 --> $limit=“” --> 不会存储到10m的会话状态（one或者addr）中 --> 不受限制,反之，不在白名单中 --> whiteiplist=1 --> $limit=二进制远程地址 -->存储进10m的会话状态中 --> 受到限制
+- 如果在白名单中–> whiteiplist=0 --> \$limit=“” --> 不会存储到10m的会话状态（one或者addr）中 --> 不受限制,反之，不在白名单中 --> whiteiplist=1 --> $limit=二进制远程地址 -->存储进10m的会话状态中 --> 受到限制
 
 ### 使用 Nginx 的缓存
 
@@ -130,6 +130,7 @@ proxy_cache_valid any 60m;
 
 ```
 ---
+
 ### 防止HTTP慢速攻击
 
 - 此配置将限制客户端在10秒内必须发送请求或数据，同时将缓冲区大小限制为1k。如果连接不稳定或缓慢，nginx将关闭连接并拒绝请求。
