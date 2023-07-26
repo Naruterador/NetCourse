@@ -1,0 +1,71 @@
+[RT6]display current-configuration 
+#
+ version 5.20, Alpha 1011
+#
+ sysname RT6
+#
+ password-control login-attempt 3 exceed lock-time 120
+#
+ undo voice vlan mac-address 00e0-bb00-0000
+#
+ ipsec cpu-backup enable
+#
+ undo cryptoengine enable
+#
+ domain default enable system
+#
+vlan 1
+#
+domain system
+ access-limit disable
+ state active
+ idle-cut disable
+ self-service-url disable
+#
+interface Serial0/2/0
+ link-protocol ppp
+ ip address 46.0.0.2 255.255.255.252
+#
+interface NULL0
+#
+interface LoopBack0
+ ip address 6.6.6.6 255.255.255.255
+#
+interface Ethernet0/4/0
+ port link-mode bridge
+#
+interface Ethernet0/4/1
+ port link-mode bridge
+#
+interface Ethernet0/4/2
+ port link-mode bridge
+#
+interface Ethernet0/4/3
+ port link-mode bridge
+#
+interface Ethernet0/4/4
+ port link-mode bridge
+#               
+interface Ethernet0/4/5
+ port link-mode bridge
+#
+interface Ethernet0/4/6
+ port link-mode bridge
+#
+interface Ethernet0/4/7
+ port link-mode bridge
+#
+bgp 600
+ network 6.6.6.6 255.255.255.255 
+ undo synchronization
+ peer 46.0.0.1 as-number 100
+ group ex external
+ peer 46.0.0.1 group ex
+#
+ load xml-configuration
+#
+user-interface con 0
+ idle-timeout 0 0
+user-interface vty 0 4
+#
+return
