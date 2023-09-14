@@ -1,7 +1,7 @@
 ## 1.1 认识Linux
 
 - 本节首先介绍
-  - Linux系统的历史，然后介绍Linux的系统的特、什么是Linux系统的开发版以及Linu系统的结构。
+  - Linux系统的历史，然后介绍Linux的系统的特、什么是Linux系统的开发版以及Linux系统的结构。
 
 ### 1.1.1 Linux系统的历史
 
