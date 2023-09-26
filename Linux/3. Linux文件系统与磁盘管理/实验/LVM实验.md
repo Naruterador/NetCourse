@@ -20,7 +20,7 @@
   ```mkfs -t ext4 /dev/vgdata/lvdata1```
 
 
-  - 新建目录/data，将（6）中创建好的ext4文件系统的逻辑卷lvdata1挂载好/data目录。
+  - 新建目录/data，将创建好的ext4文件系统的逻辑卷lvdata1挂载到/data目录。
   ```shell
   # 新建目录 /data
   mkdir /data
