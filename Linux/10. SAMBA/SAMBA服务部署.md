@@ -71,13 +71,13 @@ Block，信息服务块）是一种在局域网上共享文件和打印机的通
 
 <center>
 
-![10.2.2](./pics/10.2.2)
+![10.2.2](./pics/10.2.2.png)
 
 图10.2.2
 
 </center>
 
-- 表10.2.3列出了/etc/Samba/smb.conf主配置文件中\[global\]全局配置的一些主要参数的功能。
+- 表10.2.3列出了/etc/Samba/smb.conf主配置文件中[global]全局配置的一些主要参数的功能。
 
 <center>
 
@@ -99,7 +99,7 @@ Block，信息服务块）是一种在局域网上共享文件和打印机的通
 
 </center>
 
-- Samba服务有三种访问模式，可以通过\[global\]全局配置中的"security"参数进行配置：
+- Samba服务有三种访问模式，可以通过[global]全局配置中的"security"参数进行配置：
 
 - share：用户访问Samba不需要提供用户名和口令，安全性低
 
@@ -107,10 +107,10 @@ Block，信息服务块）是一种在局域网上共享文件和打印机的通
 
 - domian：域安全级别认证，使用域控制器来完成验证
 
-- Samba服务中的用户认证方式有三种，可以通过\[global\]全局配置中的"passdb backend"参数进行配置：
+- Samba服务中的用户认证方式有三种，可以通过[global]全局配置中的"passdb backend"参数进行配置：
   - smbpasswd：使用SMB服务的smbpasswd命令为系统用户设置密码；客户端使用此密码来访问Samba的资源smbpasswd文件默认保存在/etc/Samba目录下，如果不存在需要手动创建
 
-  - tdbsam：使用数据库来建立用户权限，默认保存在/etc/Samba/passdb.tdb文件中，使用命令```smbpasswd -a```来建立Samba账户，也可以使用pdbedit来建立Samba账户:
+  - tdbsam：使用数据库来建立用户权限，默认保存在/etc/samba/passdb.tdb文件中，使用命令```smbpasswd -a```来建立Samba账户，也可以使用pdbedit来建立Samba账户:
 
   ```shell
   #新建用户：
@@ -233,7 +233,7 @@ firewall-cmd --add-port=138/tcp --permanent
 图10.2.7
 </center>
 
-- 编辑Samba服务主配置文件/etc/Samba/smb.conf，在\[global\]全局配置中添加开启匿名参数。操作如图10.2.8所示。
+- 编辑Samba服务主配置文件/etc/Samba/smb.conf，在[global]全局配置中添加开启匿名参数。操作如图10.2.8所示。
 
 <center>
 
@@ -243,7 +243,7 @@ firewall-cmd --add-port=138/tcp --permanent
 
 </center>
 
-- 编辑Samba服务主配置文件/etc/Samba/smb.conf，添加一个名为\[public\]的匿名共享资源。操作如图10.2.9所示。
+- 编辑Samba服务主配置文件/etc/Samba/smb.conf，添加一个名为[public]的匿名共享资源。操作如图10.2.9所示。
 
 <center>
 
@@ -253,7 +253,7 @@ firewall-cmd --add-port=138/tcp --permanent
 
 </center>
 
-- 表10.2.10列出了\[public\]的匿名共享资源配置的含义。
+- 表10.2.10列出了[public]的匿名共享资源配置的含义。
 
 <center>
 
@@ -350,7 +350,7 @@ firewall-cmd --add-port=138/tcp --permanent
 
 </center>
 
-编辑Samba服务主配置文件/etc/Samba/smb.conf，添加一个名为\[share\]的共享资源。操作如图10.3.3所示。
+编辑Samba服务主配置文件/etc/Samba/smb.conf，添加一个名为[share]的共享资源。操作如图10.3.3所示。
 
 <center>
 
@@ -485,7 +485,7 @@ firewall-cmd --add-port=138/tcp --permanent
 
 </center>
 
-- 编辑Samba服务主配置文件/etc/Samba/smb.conf，添加一个名为\[smbdir\]的共享资源。操作如图10.3.12所示。
+- 编辑Samba服务主配置文件/etc/Samba/smb.conf，添加一个名为[smbdir]的共享资源。操作如图10.3.12所示。
 
 <center>
 
